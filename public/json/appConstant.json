@@ -1,0 +1,6 @@
+{
+    "NEXT_PUBLIC_TOKEN": "token",
+    "NEXT_PUBLIC_USER_INFO": "userInfo",
+    "NEXT_PUBLIC_REMEMBER_ME": "rememberMe",
+    "NEXT_PUBLIC_OTP_TOKEN": "otpToken"
+}
