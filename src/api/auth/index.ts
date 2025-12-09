@@ -55,6 +55,42 @@ export const loginApi = async (email: string, password: string) => {
   }
 };
 
+export const signUp = async (data:any) => {
+  try {
+    const url = routes.SIGN_UP();
+  
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData?.error || 'Login failed');
+    }
+
+    const responseData = await response.json();
+
+    // Store token
+    if (responseData?.token) {
+      setLocalStorage(responseData.token, tokenLocalStorageKey);
+    }
+
+    // Store user info
+    if (responseData?.user) {
+      setLocalStorage(responseData.user, userLocalStorageKey);
+    }
+
+    return responseData;
+  } catch (error: any) {
+    console.error('Login API error:', error);
+    throw error;
+  }
+};
 /**
  * Logout user
  */

@@ -76,7 +76,6 @@ export default function AgentDetail(props: any) {
   // SAVE EDITED DATA
   // -------------------------
   const onSubmit = async (values: z.infer<typeof agentSchema>) => {
-    console.log("Submitted values:", values);
     try {
       const body = {
         // name: values.name,

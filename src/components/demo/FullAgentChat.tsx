@@ -8,7 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { set } from "date-fns";
 const WS_URL = `ws://192.168.1.175:5000/stream-transcribe`;
 export default function ChatApp({ agentId }: any) {
-  
   const [messages, setMessages]: any = useState([]);
   const [inputText, setInputText] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -25,7 +24,8 @@ export default function ChatApp({ agentId }: any) {
   const pcmWorkerRef: any = useRef(null);
 
   const [sessionId] = useState(`session_${Date.now()}`);
-
+  const end_timestamp = new Date().toISOString();
+  const start_timestamp = new Date().toISOString();
   //----------------------------------------------------
   // AUTO SCROLL
   //----------------------------------------------------
@@ -359,19 +359,31 @@ export default function ChatApp({ agentId }: any) {
         agent_id: agentId,
         session_id: Date.now(),
         user_id: user?._id,
-        start_timestamp: new Date().toISOString(),
+        start_timestamp: start_timestamp,
       };
 
       const res: any = await syncAgent(bodyPayload);
       if (!res.error) {
         setConversationId(res?.conversation?._id ?? res?.conversation);
-        toast({ title: "Success", description: "Chat session started.", variant: "default" });
+        toast({
+          title: "Success",
+          description: "Chat session started.",
+          variant: "default",
+        });
       } else {
-        toast({ title: "Error", description: res.error || "Failed to start chat session", variant: "destructive" });
+        toast({
+          title: "Error",
+          description: res.error || "Failed to start chat session",
+          variant: "destructive",
+        });
       }
     } catch (err: any) {
       console.error("Failed to start conversation:", err);
-      toast({ title: "Error", description: "Could not start conversation.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Could not start conversation.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -386,50 +398,87 @@ export default function ChatApp({ agentId }: any) {
           messages,
           agent_id: agentId,
           session_id: sessionId,
-          end_timestamp: new Date().toISOString(),
+          end_timestamp: end_timestamp,
           user_id: user?._id,
         };
 
-        saveChat(preparedBody, conversationId).then((res) => {
-          if (!res.error) {
-            // Optionally call saveN8Nchat here if desired
-            toast({ title: "Success", description: "Chat saved successfully!", variant: "default" });
-            setMessages([]);
-            setInputText("");
-            setIsThinking(false);
-          } else {
-            toast({ title: "Error", description: `Failed to save chat: ${res.errorMessage}`, variant: "destructive" });
-          }
-        }).catch((err) => {
-          toast({ title: "Error", description: `Failed to save chat: ${err?.message || err}`, variant: "destructive" });
-        });
+        saveChat(preparedBody, conversationId)
+          .then((res) => {
+            if (!res.error) {
+              const preparedBodyN8N = {
+                messages,
+                agent_id: agentId,
+                session_id: sessionId,
+                end_timestamp: end_timestamp,
+                start_timestamp: start_timestamp,
+                user_id: user?._id,
+                conversation_id: conversationId,
+              };
+              saveN8Nchat(preparedBodyN8N).then((resN8N) => {
+                if (!resN8N.error) {
+                  console.log("✅ Chat saved successfully");
+                  // Optionally call saveN8Nchat here if desired
+                  toast({
+                    title: "Success",
+                    description: "Chat saved successfully!",
+                    variant: "default",
+                  });
+                  setMessages([]);
+                  setInputText("");
+                  setIsThinking(false);
+                } else {
+                  toast({
+                    title: "Error",
+                    description: `Failed to save chat to n8n: ${resN8N.errorMessage}`,
+                    variant: "destructive",
+                  });
+                }
+              });
+            } else {
+              toast({
+                title: "Error",
+                description: `Failed to save chat: ${res.errorMessage}`,
+                variant: "destructive",
+              });
+            }
+          })
+          .catch((err) => {
+            toast({
+              title: "Error",
+              description: `Failed to save chat: ${err?.message || err}`,
+              variant: "destructive",
+            });
+          });
       }
     } catch (err) {
-      toast({ title: "Error", description: `Something went wrong ${err}`, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: `Something went wrong ${err}`,
+        variant: "destructive",
+      });
       console.error("❌ Error processing audio chunk:", err);
     }
   };
 
   // If conversation not started yet, show centered Open Chat button only
-if (!conversationId) {
-  return (
-    <div className="flex items-center justify-center h-full w-full bg-gray-50">
-      <button
-        onClick={openConversation}
-        className="px-6 py-3 bg-indigo-600 text-white rounded-md"
-      >
-        Open Chat
-      </button>
-    </div>
-  );
-}
+  if (!conversationId) {
+    return (
+      <div className="flex items-center justify-center h-full w-full bg-gray-50">
+        <button
+          onClick={openConversation}
+          className="px-6 py-3 bg-indigo-600 text-white rounded-md"
+        >
+          Open Chat
+        </button>
+      </div>
+    );
+  }
 
-
   return (
-<div className="flex flex-col h-[96%] w-full bg-white border border-gray-300 rounded-lg shadow">
+    <div className="flex flex-col h-[96%] w-full bg-white border border-gray-300 rounded-lg shadow">
       {/* HEADER */}
       <div className="bg-indigo-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-lg font-semibold">AI  Assistant</h1>
+        <h1 className="text-lg font-semibold">AI Assistant</h1>
         <div
           className={`h-3 w-3 rounded-  full ${
             isConnected ? "bg-green-400" : "bg-red-500"
@@ -469,7 +518,6 @@ if (!conversationId) {
 
         <div ref={messagesEndRef} />
       </div>
-
 
       <div className="p-4 border-t flex items-center gap-2">
         <input
@@ -515,4 +563,4 @@ if (!conversationId) {
       </div>
     </div>
   );
-}  
+}

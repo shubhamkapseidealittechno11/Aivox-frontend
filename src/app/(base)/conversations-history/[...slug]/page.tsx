@@ -12,7 +12,6 @@ import { ContentLayout } from "@/components/admin-panel/content-layout";
 import ChatHistory from '@/components/details/chatHistory';
 
 const AgentDeatil = ({ params }: any) => {
-    console.log("params in agent detail page:====", params);
     // params.slug is a catch-all array; agent id is expected at index 0
     const agentId = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
 

@@ -307,7 +307,6 @@ const agentTableComponent = () => {
       accessorKey: "is_active",
       cell: (info) => {
         const status = info.getValue<boolean>();
-        console.log("status", status);
 
         return (
           <div
@@ -389,8 +388,7 @@ const agentTableComponent = () => {
             <AddAgentConfig
               setOpen={setOpen}
               setAllagents={setAllagents}
-              allAgent
-              s={allAgents}
+              allAgents={allAgents}
             ></AddAgentConfig>
           </DialogContent>
         </Dialog>

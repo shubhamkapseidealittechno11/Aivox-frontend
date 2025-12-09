@@ -35,8 +35,14 @@ import { useAuth } from '@/context/AuthContext';
 const formSchema = z.object({
   email: z.string().trim().min(1, { message: "Email is required." }).email({ message: "Invalid email address." }),
   password: z
-    .string().trim().min(1, { message: "Password is required." })
-    .min(6, { message: "Password must be at least 6 characters." }),
+  .string()
+  .trim()
+  .min(1, { message: "Password is required." })
+  .min(8, { message: "Password must be at least 8 characters." })
+  .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter." })
+  .regex(/[0-9]/, { message: "Password must contain at least one number." })
+  .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character." }),
+
   remember: z.boolean().default(false).optional()
 });
 
@@ -133,7 +139,7 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="container relative min-h-screen flex-col items-center justify-between flex lg:grid lg:max-w-none lg:grid-cols-2 lg:px-0" >
+<div className="container relative min-h-screen flex items-center justify-center">
       
         <div className="lg:p-8 w-full " >
           <div className="justify-end flex items-center gap-2 absolute top-2 right-2">
@@ -146,12 +152,12 @@ export default function HomePage() {
             <ModeToggle />
           </div>
 
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
+          {/* <div className="mx-auto flex w-full flex-col justify-center space-y-6 "> */}
 
 
-            <section className="lg:mt-6 mt-4 max-w-[980px] flex-col items-center gap-2 lg:p-6 p-4  border border-input rounded-md mx-auto"> 
+            <section className="lg:mt-6 mt-4 max-w-[980px] flex-col items-center gap-2 lg:p-6 p-4  mx-auto border border-input rounded-md "> 
               {/* <h1 className="text-center text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:leading-[1.1]"> */}
-              <div className="flex justify-center lg:hidden block" >
+              {/* <div className="flex justify-center lg:hidden block" >
                 <Image
                   className="object-contain w-full text-center lg:size-[100px] size-[70px]"
                   src={"logo.svg"}
@@ -160,7 +166,7 @@ export default function HomePage() {
                   height={100}
                   priority
                 />
-              </div>
+              </div> */}
               {/* </h1> */}
               <div className="mx-auto max-w-sm mt-6">
                 {/* <CardHeader className="space-y-1">
@@ -251,14 +257,14 @@ export default function HomePage() {
                           'Login'
                         )}
                       </Button>
-                      {/* <div className="text-center">
+                      <div className="text-center">
                         <Link
                           className="px-8 text-sm text-muted-foreground"
-                          href="/forgot-password"
-                        >  need to uncomment
-                          Forgot Password?
+                          href="/signup"
+                        >  
+                          Register a new account
                         </Link>
-                      </div> */}
+                      </div>
                     </div>
                   </form>
                 </Form>
@@ -266,7 +272,7 @@ export default function HomePage() {
               </div>
             </section>
           </div>
-        </div>
+        {/* </div> */}
         <div className="z-20 justify-center w-full lg:mt-auto sticky bottom-0 flex lg:hidden dark:bg-black bg-white">
           <blockquote className="space-y-2">
             <footer className="text-sm">
