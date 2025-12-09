@@ -1,49 +1,48 @@
 import routes from "./routes";
-import {  getApiAccessToken } from "./authToken";
+import { getApiAccessToken } from "./authToken";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/hooks";
 import { logoutUser } from "@/lib/slices/authSlice";
 import appConstant from "../../public/json/appConstant.json";
 
-
 export default function agentsApi() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
 
-    const createAgent = async (data:any) => {
+  const createAgent = async (data: any) => {
     try {
-    //   const body = {
-    //     fileName: `content_pages/${data}.json`,
-    //     fileType: 'application/json'
-    //   };
+      //   const body = {
+      //     fileName: `content_pages/${data}.json`,
+      //     fileType: 'application/json'
+      //   };
       const url = routes.CREATE_AGENT();
-      const accessFileToken = await getApiAccessToken();   
+      const accessFileToken = await getApiAccessToken();
       const options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + accessFileToken
+          Authorization: "Bearer " + accessFileToken,
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       };
       const response = await fetch(url, options);
       const responseData = await response.json();
       if (!response.ok) {
         if (response?.status === 401 || response?.status === 403) {
-            errorHandle(response?.status);
+          errorHandle(response?.status);
         }
-    }
+      }
       return responseData;
-    } catch (error:any) {
+    } catch (error: any) {
       return { error: true, errorMessage: error?.message };
     }
   };
 
-  const deleteAgent = async (data: any ) => {
+  const deleteAgent = async (data: any) => {
     try {
-    //  const body = {userId:data}
+      //  const body = {userId:data}
       const url = routes.DELETE_AGENT(data);
       const accessToken = await getApiAccessToken();
       // const accessToken = await getAccessToken();
@@ -59,11 +58,11 @@ export default function agentsApi() {
       const responseData = await response.json();
       if (!response.ok) {
         if (response?.status === 401 || response?.status === 403) {
-            errorHandle(response?.status);
+          errorHandle(response?.status);
         }
-    }
+      }
       return responseData;
-    } catch (error:any) {
+    } catch (error: any) {
       return { error: true, errorMessage: error?.message };
     }
   };
@@ -75,7 +74,7 @@ export default function agentsApi() {
       // const accessToken = await getAccessToken();
       const body = {
         status: data?.status,
-        id:data?.userId
+        id: data?.userId,
       };
       const options = {
         method: "PATCH",
@@ -89,11 +88,11 @@ export default function agentsApi() {
       const responseData = await response.json();
       if (!response.ok) {
         if (response?.status === 401 || response?.status === 403) {
-            errorHandle(response?.status);
+          errorHandle(response?.status);
         }
-    }
+      }
       return responseData;
-    } catch (error:any) {
+    } catch (error: any) {
       return { error: true, errorMessage: error?.message };
     }
   };
@@ -105,80 +104,130 @@ export default function agentsApi() {
       // const accessToken = await getAccessToken();
       const accessToken = await getApiAccessToken();
 
-      const options =  {
+      const options = {
         headers: { Authorization: "Bearer " + accessToken },
+      };
+      const response = await fetch(url, options);
+      const responseData = await response.json();
+      if (!response.ok) {
+        if (response?.status === 401 || response?.status === 403) {
+          errorHandle(response?.status);
+        }
       }
-      const response = await fetch(url, options);
-      const responseData = await response.json();
-      if (!response.ok) {
-        if (response?.status === 401 || response?.status === 403) {
-            errorHandle(response?.status);
-        }
-    }
       return responseData;
-    } catch (error:any) {
+    } catch (error: any) {
       return { error: true, errorMessage: error?.message };
     }
   };
 
-
-
-    const syncAgent = async (data:any) => {
+  const syncAgent = async (data: any) => {
     try {
-    //   const body = {
-    //     fileName: `content_pages/${data}.json`,
-    //     fileType: 'application/json'
-    //   };
+      //   const body = {
+      //     fileName: `content_pages/${data}.json`,
+      //     fileType: 'application/json'
+      //   };
       const url = routes.SYNC_AGENT();
-      const accessFileToken = await getApiAccessToken();   
+      const accessFileToken = await getApiAccessToken();
       const options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + accessFileToken
+          Authorization: "Bearer " + accessFileToken,
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       };
       const response = await fetch(url, options);
       const responseData = await response.json();
       if (!response.ok) {
         if (response?.status === 401 || response?.status === 403) {
-            errorHandle(response?.status);
+          errorHandle(response?.status);
         }
-    }
+      }
       return responseData;
-    } catch (error:any) {
+    } catch (error: any) {
       return { error: true, errorMessage: error?.message };
     }
   };
 
-      const saveChat = async (data:any , id:any) => {
+  const saveChat = async (data: any, id: any) => {
     try {
-   
       const url = routes.SAVE_CHAT(id);
-      const accessFileToken = await getApiAccessToken();   
+      const accessFileToken = await getApiAccessToken();
       const options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + accessFileToken
+          Authorization: "Bearer " + accessFileToken,
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       };
       const response = await fetch(url, options);
       const responseData = await response.json();
       if (!response.ok) {
         if (response?.status === 401 || response?.status === 403) {
-            errorHandle(response?.status);
+          errorHandle(response?.status);
         }
-    }
+      }
       return responseData;
-    } catch (error:any) {
+    } catch (error: any) {
       return { error: true, errorMessage: error?.message };
     }
   };
 
-  const errorHandle = (status :any) => {
+  const saveN8Nchat = async (data: any, id: any) => {
+    try {
+      const url = routes.SAVE_N8N_CHAT(id);
+      const accessFileToken = await getApiAccessToken();
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + accessFileToken,
+        },
+        body: JSON.stringify(data),
+      };
+      const response = await fetch(url, options);
+      const responseData = await response.json();
+      if (!response.ok) {
+        if (response?.status === 401 || response?.status === 403) {
+          errorHandle(response?.status);
+        }
+      }
+      return responseData;
+    } catch (error: any) {
+      return { error: true, errorMessage: error?.message };
+    }
+  };
+  const editAgent = async (id:any, data: any) => {
+    try {
+      const url = await routes.EDIT_PROMPT(id);
+      const accessToken = await getApiAccessToken();
+      // const accessToken = await getAccessToken();
+      // const body = {
+      //   status: data?.status,
+      //   id: data?.userId,
+      // };
+      const options = {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + accessToken,
+        },
+        body: JSON.stringify(data),
+      };
+      const response = await fetch(url, options);
+      const responseData = await response.json();
+      if (!response.ok) {
+        if (response?.status === 401 || response?.status === 403) {
+          errorHandle(response?.status);
+        }
+      }
+      return responseData;
+    } catch (error: any) {
+      return { error: true, errorMessage: error?.message };
+    }
+  };
+  const errorHandle = (status: any) => {
     const tokenLocalStorageKey: any = `${appConstant.NEXT_PUBLIC_TOKEN}`;
     const userLocalStorageKey: any = `${appConstant.NEXT_PUBLIC_USER_INFO}`;
     localStorage.removeItem(userLocalStorageKey);
@@ -187,13 +236,21 @@ export default function agentsApi() {
     toast({
       variant: "destructive",
       title: "Uh oh! Something went wrong.",
-      description:  status == 401 
-      ? 'Session expired. Please log in again.' 
-      : 'You do not have permission to perform this action.',
+      description:
+        status == 401
+          ? "Session expired. Please log in again."
+          : "You do not have permission to perform this action.",
     });
-    }
+  };
 
-
-
-  return { createAgent , updateUser, deleteAgent, userDetail ,syncAgent ,saveChat};
+  return {
+    createAgent,
+    updateUser,
+    deleteAgent,
+    userDetail,
+    syncAgent,
+    saveChat,
+    saveN8Nchat,
+    editAgent
+  };
 }

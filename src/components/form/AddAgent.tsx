@@ -25,7 +25,8 @@ const agentSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export default function AddAgentConfig({setOpen}:any) {
+export default function AddAgentConfig({setOpen , setAllagents , allAgents}:any) {
+  console.log("allAgents in add agent config:", allAgents);
   const form = useForm<z.infer<typeof agentSchema>>({
     resolver: zodResolver(agentSchema),
     defaultValues: {
@@ -53,6 +54,8 @@ async function onSubmit(values: z.infer<typeof agentSchema>) {
     const res = await createAgent(body);
 
     if (!res.error) {
+      setAllagents({...allAgents , results:[res.agent ,...( allAgents.results ||[] )]});
+      console.log("response after creating agent:", allAgents);
       toast({
         title: "Agent created successfully!",
       });

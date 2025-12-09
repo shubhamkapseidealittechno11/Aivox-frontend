@@ -1,110 +1,124 @@
 "use client";
-import UserApi from "@/api/agentActionsApi";
 import React, { useEffect, useState } from "react";
-import {
-  CardDescription,
-  CardHeader,
-  Card,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import Image from "next/image";
-import { Loader2, MapPin } from "lucide-react";
-import { Badge } from "../ui/badge";
-import { format } from "date-fns";
-import { Separator } from "../ui/separator";
-import "yet-another-react-lightbox/styles.css";
-import { Button } from "../ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import FullAgentChat from "@/components/demo/FullAgentChat";
-import { toast } from "../ui/use-toast";
-import NextTopLoader from "nextjs-toploader";
+import AgentApi from "@/api/agentActionsApi";
+import { useAuth } from "@/context/AuthContext";
 
-const AgentDetail = (props: any) => {
-  const { userDetail, syncAgent } = UserApi();
-  const [userInfo, setUserInfo]: any = useState(null);
-  const [circleLoader, setCircleLoader]: any = useState(false);
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { toast } from "@/components/ui/use-toast";
+
+// -------------------------
+// ZOD SCHEMA
+// -------------------------
+const agentSchema = z.object({
+  name: z.string().min(1, "Agent name is required."),
+  prompt: z.string().min(1, "System prompt is required."),
+});
+
+export default function AgentDetail(props: any) {
+  const { userDetail, editAgent } = AgentApi();
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [circleLoader, setCircleLoader] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
   const { id } = props?.data;
-  const [open, setOpen] = React.useState(false);
-  const [conversationId, setConversation]: any = useState();
+
+  // -------------------------
+  // INITIAL FORM SETUP
+  // -------------------------
+  const form = useForm<z.infer<typeof agentSchema>>({
+    resolver: zodResolver(agentSchema),
+    defaultValues: {
+      name: "",
+      prompt: "",
+    },
+  });
 
   useEffect(() => {
     getUserDetails(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  
-
-const handleChatOpen = async () => {
-  try {
-    const bodyPayload = {
-      agent_id: id?.[0],
-      session_id: Date.now(),
-    };
-
-    const res: any = await syncAgent(bodyPayload);
-
-    if (!res.error) {
-      setConversation(res?.conversation._id);
-      setOpen(true);
-      toast({
-        title: "Success",
-        description: "Chat session started successfully!",  
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: res.error || "Failed to start chat session",  
-        variant: "destructive",
-      });
-    }
-
-  } catch (error: any) {
-    console.error(error);
-    toast({
-      title: "Error",
-      description: "Something went wrong. Please try again.",  
-      variant: "destructive",
-    });
-  }
-};
-
-
-
 
   const getUserDetails = async (id: any) => {
     setCircleLoader(true);
-    await userDetail(id).then((res: any) => {
-      if (!res.error) {
-        setUserInfo(res?.agent);
-        setCircleLoader(false);
-      } else {
-        setCircleLoader(false);
-        setUserInfo(null);
-      }
-    });
+
+    const res = await userDetail(id);
+    if (!res?.error) {
+      setUserInfo(res.agent);
+
+      // Load values into the form
+      form.reset({
+        name: res.agent?.name || "",
+        prompt: res.agent?.prompt || "",
+      });
+    } else {
+      setUserInfo(null);
+    }
+    setCircleLoader(false);
   };
 
+  // -------------------------
+  // SAVE EDITED DATA
+  // -------------------------
+  const onSubmit = async (values: z.infer<typeof agentSchema>) => {
+    console.log("Submitted values:", values);
+    try {
+      const body = {
+        // name: values.name,
+        prompt: values.prompt,
+      };
+
+      const res = await editAgent(id, body);
+
+      if (!res.error) {
+        toast({ title: "Agent updated successfully!" });
+
+        // update local UI only
+        setUserInfo((prev: any) => ({
+          ...prev,
+          name: values.name,
+          prompt: values.prompt,
+        }));
+
+        setEditMode(false);
+      } else {
+        toast({
+          variant: "destructive",
+          title: res?.errorMessage || "Update failed.",
+        });
+      }
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Server error",
+        description: "Unable to update agent.",
+      });
+    }
+  };
+
+  // -------------------------
+  // CONDITIONAL UI
+  // -------------------------
   if (circleLoader) {
     return (
-
-      <div className="flex justify-center items-center my-28 h-[100px] dark:text-white w-[100px] text-[#DCEDC0] animate-spin">
- <NextTopLoader
-                color="#3B82F6"
-                initialPosition={0.035}
-                crawlSpeed={200}
-                height={3}
-                crawl={true}
-                showSpinner={false}
-                easing="ease"
-                speed={200}
-                shadow="0 0 10px #3B82F6,0 0 5px #3B82F6"
-                template='<div class="bar" role="bar"><div class="peg"></div></div> 
-                          <div class="spinner" role="spinner"><div class="spinner-icon"></div></div>'
-                zIndex={1600}
-                showAtBottom={false}
-              />      </div>
+      <div className="flex justify-center items-center my-28 h-[100px]">
+        <div className="animate-spin rounded-full h-18 w-18 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
     );
   }
 
@@ -116,7 +130,6 @@ const handleChatOpen = async () => {
           alt="Logo"
           width={320}
           height={320}
-          priority
           className="size-[150px]"
         />
         <span className="font-semibold text-lg">No Record Found</span>
@@ -124,90 +137,92 @@ const handleChatOpen = async () => {
     );
   }
 
+  // -------------------------
+  // MAIN RENDER
+  // -------------------------
   return (
-    <>
-      <div className="flex justify-center items-start w-full">
-        <Card className="w-full max-w-xl p-6 shadow-md">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold">
-              🤖 Agent Details
-            </CardTitle>
-            <CardDescription className="text-sm text-gray-500">
-              View configuration & system prompt
-            </CardDescription>
-          </CardHeader>
+    <div className="w-full">
+      <Card className="shadow-none border-none">
+        <CardHeader>
+          <CardTitle className="text-2xl font-semibold">
+            🤖 {userInfo.name}
+          </CardTitle>
+        </CardHeader>
 
-          <CardContent className="space-y-6">
-            {/* Agent Name */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Agent Name
-              </label>
-              <input
-                type="text"
-                value={userInfo?.name}
-                disabled
-                className="w-full p-2 rounded border bg-gray-100 dark:bg-gray-900"
+        <CardContent>
+          <Form {...form}>
+            <form className="space-y-2" onSubmit={form.handleSubmit(onSubmit)}>
+              {/* Agent Name */}
+              {/* <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Agent Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        disabled={!editMode}
+                        className={!editMode ? "bg-gray-100 cursor-not-allowed" : ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+
+              {/* System Prompt */}
+              <FormField
+                control={form.control}
+                name="prompt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>System Prompt</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={12}
+                        {...field}
+                        disabled={!editMode}
+                        className={`h-[540px] ${
+                          !editMode ? "bg-gray-100 cursor-not-allowed text-lg" : "text-lg"
+                        }`}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            {/* System Prompt */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                System Prompt
-              </label>
-              <textarea
-                value={userInfo?.prompt}
-                rows={4}
-                disabled
-                className="w-full p-3 rounded border bg-gray-100 dark:bg-gray-900"
-              />
-            </div>
+              {/* BUTTONS */}
+              <div className="flex justify-end gap-3 pt-1">
 
-            {/* Active Status */}
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Status:</span>
-              {userInfo?.is_active ? (
-                <Badge className="bg-green-600 text-white">Active</Badge>
-              ) : (
-                <Badge variant="destructive">Inactive</Badge>
-              )}
-            </div>
+                {!editMode && (
+                  <Button type="button" onClick={() => setEditMode(true)}>
+                    Edit
+                  </Button>
+                )}
 
-            {/* Created & Updated */}
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>
-                Created At: {format(new Date(userInfo?.created_at), "PPpp")}
-              </p>
-              <p>
-                Updated At: {format(new Date(userInfo?.updated_at), "PPpp")}
-              </p>
-            </div>
+                {editMode && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setEditMode(false);
+                        form.reset(userInfo); // restore original values
+                      }}
+                    >
+                      Cancel
+                    </Button>
 
-            <Separator />
-
-            {/* Buttons */}
-            <div className="flex justify-end gap-3">
-              <Button variant="outline">Edit Agent</Button>
-              <Button className="bg-black text-white" onClick={handleChatOpen}>
-                Open Chat
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-  <DialogContent className="max-w-2xl">
-    <FullAgentChat
-     agentId={id?.[0]} 
-     id={conversationId}
-      />
-  </DialogContent>
-</Dialog>
-
-    </>
+                    <Button type="submit">Save</Button>
+                  </>
+                )}
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
-};
-
-export default AgentDetail;
+}

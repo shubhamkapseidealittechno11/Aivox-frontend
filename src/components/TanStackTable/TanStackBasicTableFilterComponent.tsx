@@ -88,8 +88,7 @@ export default function TanStackBasicTableFilterComponent<TData>({
     setSearchValue(value);
     setColumnFilters([
       // { id: "status", value: selectedStatus },
-      // { id: "instaGramVerified", selectedInstaStatus },
-      // { id: "search", value },
+      { id: "search", value },
     ]);
   };
 
@@ -97,8 +96,7 @@ export default function TanStackBasicTableFilterComponent<TData>({
     setSearchValue("");
     setColumnFilters([
       // { id: "status", value: selectedStatus },
-      // { id: "instaGramVerified", selectedInstaStatus },
-      // { id: "search", value: "" },
+      { id: "search", value: "" },
     ]);
   };
   return (
@@ -437,7 +435,7 @@ export default function TanStackBasicTableFilterComponent<TData>({
                 </SheetClose>
               </SheetFooter>
             </SheetContent>
-          </Sheet>}
+          </Sheet> }
         </div>
       </div>
     </>

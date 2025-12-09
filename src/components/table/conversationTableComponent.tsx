@@ -1,5 +1,5 @@
 "use client";
-import { useGetAgents } from "@/api/useGetAgents";
+import { useGetConversation } from "@/api/useGetConversation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { User } from "@/types/Users";
 import {
@@ -31,12 +31,12 @@ import { titleCase } from "@/lib/utils";
 import agentsApi from "@/api/agentActionsApi";
 import { useTheme } from "next-themes";
 import { Badge } from "../ui/badge";
-import NotificationApi from "@/api/notification";
 import { useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import AddAgentConfig from "../form/AddAgent";
 
-const agentTableComponent = () => {
+const conversationTableComponent = () => {
+    
   const previewImgUrl = process.env.NEXT_PUBLIC_PREVIEW_IMG_URL;
   const { theme } = useTheme();
   // const { directLogout } = AuthService();
@@ -46,8 +46,11 @@ const agentTableComponent = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { toast } = useToast();
   const router = useRouter();
-  const { sendNotification } = NotificationApi();
   const [open, setOpen] = useState(false);
+
+  const [allAgents, setAllagents]: any = useState([]);
+  const tableRef = useRef<Table<User> | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // column filters state of the table
   const [columnFilters, setColumnFilters]: any = useState<ColumnFiltersState>(
@@ -64,31 +67,28 @@ const agentTableComponent = () => {
     pageSize: 20, //default page size
   });
 
-  const { allAgentData, isAllDataLoading }: any = useGetAgents({
+  const { allConversationData, isAllDataLoading }: any = useGetConversation({
     sorting,
     columnFilters: debouncedColumnFilters,
     pagination,
   });
 
-  const [allAgents, setAllagents]: any = useState([]);
-  const tableRef = useRef<Table<User> | null>(null);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    if (allAgentData?.error) {
-      404 != allAgentData?.status &&
+    if (allConversationData?.error) {
+      404 != allConversationData?.status &&
         toast({
-          title: allAgentData?.errorMessage
-            ? allAgentData?.errorMessage
+          title: allConversationData?.errorMessage
+            ? allConversationData?.errorMessage
             : "Uh oh! Something went wrong.",
           variant: "destructive",
-          description: allAgentData?.error,
+          description: allConversationData?.error,
         });
       // (allAgentData?.status == 401 || allAgentData?.status == 403) &&
       //   directLogout();
     }
-    setAllagents(allAgentData);
-  }, [allAgentData, pathname]);
+    setAllagents(allConversationData);
+  }, [allConversationData, pathname]);
 
   //   async function updateData(data: any) {
   //     const status: any = data.status == "active" ? "inactive" : "active";
@@ -263,14 +263,16 @@ const agentTableComponent = () => {
   }
 
   const userColumns: ColumnDef<any>[] = [
+
     {
-      header: "Title",
-      accessorKey: "name",
-      accessorFn: (row: any) => row.name,
+      header: "Agent",
+      accessorKey: "agent_id",
+      accessorFn: (row: any) => row,
       enableSorting: false,
-      enableColumnFilter: true,
+      enableColumnFilter: false,
       cell: (info) => {
         const row: any = info.row.original;
+         const agentId = row?.agent_id;
         return (
           <div className="flex">
             {/* <Avatar className="border border-[#000]">
@@ -282,7 +284,7 @@ const agentTableComponent = () => {
               </AvatarFallback>
             </Avatar> */}
             <p className="m-2">
-              {row?.name ? titleCase(row?.name?.trim()) : "N/A"}
+              {row?.agent_id ? titleCase(agentId?.trim()) : "N/A"}
             </p>
           </div>
         );
@@ -290,91 +292,110 @@ const agentTableComponent = () => {
     },
 
     {
-      header: "Edited At",
-      accessorKey: "created_at",
+      header: " Session",
+      accessorKey: "session_id",
       cell: (info) => {
         const createdAt = info.getValue<string>();
-        return format(new Date(createdAt), "dd MMM, yy 'at' h:mm a");
+        return (
+          <div className="text-left">
+            {createdAt ? (
+              <p>{createdAt}</p>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400">N/A</p>
+            )}
+          </div>
+        );
       },
       enableColumnFilter: false,
       enableSorting: false,
     },
 
     {
-      header: "Status",
+      header: "Start ",
       enableSorting: false,
       enableColumnFilter: true,
-      accessorKey: "is_active",
+      accessorKey: "start_timestamp",
       cell: (info) => {
-        const status = info.getValue<boolean>();
-        console.log("status", status);
+        const start:any = info.getValue<boolean>();
 
         return (
           <div
-            className={cn(
-              "px-2 py-1 text-sm font-medium",
-              !status
-                ? " text-red-700"
-                : " text-green-700"
-            )}
+            
           >
-            {status ? "Active" : "Inactive"}
+            {start ? format(new Date(start), "dd MMM, yy 'at' h:mm a") : "N/A"}
           </div>
         );
       },
     },
 
-    {
-      id: "actions",
-      header: "Action",
+     {
+      header: "End ",
       enableSorting: false,
-      cell: ({ row }) => {
-        const rowData: any = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <>
-                {/* <DropdownMenuItem
-                //   onClick={() => updates(rowData)}
-                  className="flex items-center space-x-2"
-                >
-                  <Pencil className="h-4 w-4 text-muted-foreground" />
-                  <span>Update</span>
-                </DropdownMenuItem> */}
+      enableColumnFilter: true,
+      accessorKey: "end_timestamp",
+      cell: (info) => {
+        const end :any = info.getValue<boolean>();
 
-                <DropdownMenuItem
-                  onClick={() => deleteData(rowData)}
-                  className="flex items-center space-x-2"
-                >
-                  <Trash2 className="h-4 w-4 text-muted-foreground" />
-                  <span>Delete</span>
-                </DropdownMenuItem>
-              </>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        return (
+          <div    
+          >
+            {end ? format(new Date(end), "dd MMM, yy 'at' h:mm a") : "N/A"}
+          </div>
         );
       },
     },
+
+    // {
+    //   id: "actions",
+    //   header: "Action",
+    //   enableSorting: false,
+    //   cell: ({ row }) => {
+    //     const rowData: any = row.original;
+    //     return (
+    //       <DropdownMenu>
+    //         <DropdownMenuTrigger asChild>
+    //           <Button variant="ghost" className="h-8 w-8 p-0">
+    //             <span className="sr-only">Open menu</span>
+    //             <MoreHorizontal className="h-4 w-4" />
+    //           </Button>
+    //         </DropdownMenuTrigger>
+    //         <DropdownMenuContent align="end">
+    //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    //           <DropdownMenuSeparator />
+    //           <>
+    //             {/* <DropdownMenuItem
+    //             //   onClick={() => updates(rowData)}
+    //               className="flex items-center space-x-2"
+    //             >
+    //               <Pencil className="h-4 w-4 text-muted-foreground" />
+    //               <span>Update</span>
+    //             </DropdownMenuItem> */}
+
+    //             <DropdownMenuItem
+    //               onClick={() => deleteData(rowData)}
+    //               className="flex items-center space-x-2"
+    //             >
+    //               <Trash2 className="h-4 w-4 text-muted-foreground" />
+    //               <span>Delete</span>
+    //             </DropdownMenuItem>
+    //           </>
+    //         </DropdownMenuContent>
+    //       </DropdownMenu>
+    //     );
+    //   },
+    // },
   ];
 
   const details = (data: any, headerName: any) => {
     if (headerName !== "Select") {
-      router.push(`dashboard/${data?._id}`);
+      router.push(`conversations-history/${data?._id}`);
     }
   };
 
   return (
     <div className="relative ">
       {/* <p className="absolute right-0">ddd</p> */}
-      <div className=" ">
+      {/* <div className=" ">
         <div className="absolute right-0  -top-2 justify-end">
           <Button onClick={() => setOpen((open) => !open)}>Create Agent</Button>
         </div>
@@ -394,7 +415,8 @@ const agentTableComponent = () => {
             ></AddAgentConfig>
           </DialogContent>
         </Dialog>
-      </div>
+      </div> */}
+
       {/* Table Component */}
       <TanStackBasicTable
         isTableDataLoading={isAllDataLoading}
@@ -413,4 +435,4 @@ const agentTableComponent = () => {
   );
 };
 
-export default agentTableComponent;
+export default conversationTableComponent;

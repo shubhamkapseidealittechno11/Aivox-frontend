@@ -67,6 +67,10 @@ export default function BaseLayout({
     return null;
   }
 
+  if(pathname.includes('dashboard/')) {
+    return <>{children}</>;
+  }
+
   // Render authenticated layout
   return <AdminPanelLayout>{children}</AdminPanelLayout>;
 }
