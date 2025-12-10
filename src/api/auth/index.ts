@@ -4,6 +4,7 @@ import {
   encryptAccessToken,
   decryptAccessToken,
 } from '@/service/EncryptionUtil';
+import { toast } from '@/components/ui/use-toast';
 
 const tokenLocalStorageKey = `${appConstant.NEXT_PUBLIC_TOKEN}`;
 const userLocalStorageKey = `${appConstant.NEXT_PUBLIC_USER_INFO}`;
@@ -31,12 +32,12 @@ export const loginApi = async (email: string, password: string) => {
       body: JSON.stringify(body),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData?.message || 'Login failed');
-    }
+    const responseData = await response.json();  // Read JSON once
 
-    const responseData = await response.json();
+    // 🚨 CHECK BACKEND FAILURE
+    if (responseData.success === false) {
+      throw new Error(responseData.error || "Invalid email or password");
+    }
 
     // Store token
     if (responseData?.token) {
@@ -49,11 +50,13 @@ export const loginApi = async (email: string, password: string) => {
     }
 
     return responseData;
+
   } catch (error: any) {
-    console.error('Login API error:', error);
+    console.error("Login API error:", error);
     throw error;
   }
 };
+
 
 export const signUp = async (data:any) => {
   try {
@@ -165,7 +168,11 @@ export const forgotPasswordApi = async (email: string) => {
 
     return responseData;
   } catch (error: any) {
-    console.error('Forgot password API error:', error);
+    toast({
+      variant: 'destructive',
+      title: 'Forgot password failed',
+      description: error?.message || 'Failed to send reset email',
+    });
     throw error;
   }
 };

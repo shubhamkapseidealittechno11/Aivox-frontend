@@ -357,7 +357,7 @@ export default function ChatApp({ agentId }: any) {
     try {
       const bodyPayload = {
         agent_id: agentId,
-        session_id: Date.now(),
+        session_id: sessionId,
         user_id: user?._id,
         start_timestamp: start_timestamp,
       };
@@ -461,48 +461,76 @@ export default function ChatApp({ agentId }: any) {
   };
 
   // If conversation not started yet, show centered Open Chat button only
+  // If conversation not started yet, show Open Chat button INSIDE message area
   if (!conversationId) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-gray-50">
-        <button
-          onClick={openConversation}
-          className="px-6 py-3 bg-indigo-600 text-white rounded-md"
-        >
-          Open Chat
-        </button>
+      <div className="flex flex-col h-full w-full bg-white border border-gray-300 rounded-lg shadow">
+        {/* HEADER */}
+        <div className="bg-indigo-600 text-white p-3 sm:p-4 flex justify-between items-center">
+          <h1 className="text-base sm:text-lg font-semibold">AI Assistant</h1>
+          <div
+            className={`h-3 w-3 rounded-full ${isConnected ? "bg-green-400" : "bg-red-500"}`}
+          ></div>
+        </div>
+
+        {/* MESSAGES AREA With Centered Button */}
+        <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
+          <button
+            onClick={openConversation}
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-indigo-600 text-white rounded-md shadow-md hover:bg-indigo-700 transition text-sm sm:text-base"
+          >
+            Open Chat
+          </button>
+        </div>
+
+        {/* FOOTER (Hidden until chat starts) */}
+        <div className="p-3 sm:p-4 border-t flex items-center gap-2 opacity-40 pointer-events-none">
+          <input
+            className="flex-1 border p-2 sm:p-3 rounded-xl text-sm"
+            placeholder="Type a message…"
+            disabled
+          />
+          <button className="p-2 sm:p-3 rounded-xl bg-indigo-300 text-white">
+            <Send size={16} className="sm:size-18" />
+          </button>
+          <button className="p-2 sm:p-3 rounded-xl bg-gray-300 text-white hidden sm:block">
+            End Session
+          </button>
+          <button className="p-2 sm:p-3 rounded-xl bg-gray-300 text-white">
+            <Mic size={16} className="sm:size-18" />
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[96%] w-full bg-white border border-gray-300 rounded-lg shadow">
+    <div className="flex flex-col h-full w-full bg-white border border-gray-300 rounded-lg shadow">
       {/* HEADER */}
-      <div className="bg-indigo-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-lg font-semibold">AI Assistant</h1>
+      <div className="bg-indigo-600 text-white p-3 sm:p-4 flex justify-between items-center">
+        <h1 className="text-base sm:text-lg font-semibold">AI Assistant</h1>
         <div
-          className={`h-3 w-3 rounded-  full ${
+          className={`h-3 w-3 rounded-full ${
             isConnected ? "bg-green-400" : "bg-red-500"
           }`}
         ></div>
       </div>
 
       {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-gray-50">
         {messages?.map((msg: any, i: any) => (
           <div
             key={i}
-            className={`flex ${
-              msg?.role === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`p-3 max-w-[75%] rounded-xl shadow ${
-                msg?.role === "user"
+              className={`p-2 sm:p-3 max-w-[85%] sm:max-w-[75%] rounded-xl shadow ${
+                msg.role === "user"
                   ? "bg-indigo-600 text-white rounded-br-none"
                   : "bg-white border rounded-bl-none"
               }`}
             >
-              {msg.content}
+              <p className="text-sm sm:text-base break-words">{msg.content}</p>
             </div>
           </div>
         ))}
@@ -512,16 +540,18 @@ export default function ChatApp({ agentId }: any) {
             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-200"></div>
-            Bot is responding…
+            <span className="hidden sm:inline">Bot is responding…</span>
+            <span className="sm:hidden">Thinking…</span>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t flex items-center gap-2">
+      {/* INPUT AREA */}
+      <div className="p-3 sm:p-4 border-t flex items-center gap-2">
         <input
-          className="flex-1 border p-3 rounded-xl"
+          className="flex-1 border p-2 sm:p-3 rounded-xl text-sm"
           placeholder="Type a message…"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
@@ -530,34 +560,33 @@ export default function ChatApp({ agentId }: any) {
 
         <button
           onClick={sendText}
-          className="p-3 rounded-xl bg-indigo-600 text-white"
+          className="p-2 sm:p-3 rounded-xl bg-indigo-600 text-white"
         >
-          <Send size={18} />
+          <Send size={16} className="sm:size-18" />
         </button>
 
         {messages.length > 0 && (
           <button
             onClick={handleSendMessage}
-            className="p-3 rounded-xl bg-indigo-600 text-white"
+            className="p-2 sm:p-3 rounded-xl bg-indigo-600 text-white hidden sm:flex"
           >
-            {/* <ArrowDownToLine size={18} /> */}
-            End Session
+            <span className="text-xs sm:text-sm">End</span>
           </button>
         )}
 
         {!liveMode ? (
           <button
             onClick={startLive}
-            className="p-3 rounded-xl bg-green-600 text-white shadow animate-pulse"
+            className="p-2 sm:p-3 rounded-xl bg-green-600 text-white shadow animate-pulse"
           >
-            <Mic size={18} />
+            <Mic size={16} className="sm:size-18" />
           </button>
         ) : (
           <button
             onClick={stopLive}
-            className="p-3 rounded-xl bg-red-600 text-white shadow"
+            className="p-2 sm:p-3 rounded-xl bg-red-600 text-white shadow"
           >
-            <MicOff size={18} />
+            <MicOff size={16} className="sm:size-18" />
           </button>
         )}
       </div>

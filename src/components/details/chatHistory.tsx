@@ -181,7 +181,7 @@ const ChatHistory = (props: any) => {
       </div> */}
       <div
   ref={containerRef}
-  className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-white dark:bg-[#0b1220]"
+  className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-white dark:bg-[#0b1220]"
 >
   {Object.keys(groupedByDate).map((day) => (
     <div key={day} className="space-y-4">
@@ -235,9 +235,9 @@ const ChatHistory = (props: any) => {
 </div>
 
 
-      <div className="px-4 py-3 border-t dark:border-neutral-700 text-sm text-muted-foreground">
+      {/* <div className="px-4 py-3 border-t dark:border-neutral-700 text-sm text-muted-foreground"> */}
         {/* <span className="text-xs">End of conversation</span> */}
-      </div>
+      {/* </div> */}
     </div>
   );
 };

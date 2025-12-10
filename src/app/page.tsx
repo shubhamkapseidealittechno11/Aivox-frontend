@@ -127,6 +127,7 @@ export default function HomePage() {
         router.push('/dashboard');
       }
     } catch (error: any) {
+      console.log("===> , error", error)
       toast({
         variant: 'destructive',
         title: 'Login failed',
