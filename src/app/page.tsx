@@ -140,147 +140,124 @@ export default function HomePage() {
 
   return (
     <>
-<div className="container relative min-h-screen flex items-center justify-center">
+<div className="container relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
       
-        <div className="lg:p-8 w-full " >
-          <div className="justify-end flex items-center gap-2 absolute top-2 right-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full w-8 h-8 bg-background"
-              asChild
-            ></Button>
+        <div className="lg:p-8 w-full animate-fade-in" >
+          <div className="justify-end flex items-center gap-3 absolute top-4 right-4">
             <ModeToggle />
           </div>
 
-          {/* <div className="mx-auto flex w-full flex-col justify-center space-y-6 "> */}
-
-
-            <section className="lg:mt-6 mt-4 max-w-[980px] flex-col items-center gap-2 lg:p-6 p-4  mx-auto border border-input rounded-md "> 
-              {/* <h1 className="text-center text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:leading-[1.1]"> */}
-              {/* <div className="flex justify-center lg:hidden block" >
-                <Image
-                  className="object-contain w-full text-center lg:size-[100px] size-[70px]"
-                  src={"logo.svg"}
-                  alt="Logo"
-                  width={100}
-                  height={100}
-                  priority
-                />
-              </div> */}
-              {/* </h1> */}
-              <div className="mx-auto max-w-sm mt-6">
-                {/* <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold">Login</CardTitle>
-              </CardHeader> */}
-                {/* <CardContent> */}
-                <div className="text-2xl font-bold text-center">Login</div>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-8 mt-3"
-                  >
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium">Email</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter your email"
-                                  {...field}
-                                  className="border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <FormField
-                          control={form.control}
-                          name="password"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium">Password</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input
-                                    type={showPassword ? 'text' : 'password'}
-                                    placeholder="Enter your password"
-                                    {...field}
-                                    className="pr-11 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  />
-                                  <div
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-500 hover:text-blue-500"
-                                    onClick={togglePasswordVisibility}
-                                  >
-                                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
-                                  </div>
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
+          {/* Login Card with modern styling */}
+          <section className="lg:mt-6 mt-4 max-w-[480px] flex-col items-center gap-2 lg:p-8 p-6 mx-auto border-2 border-border rounded-2xl bg-card/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300"> 
+            <div className="mx-auto max-w-sm mt-2">
+              <div className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Welcome Back
+              </div>
+              <p className="text-center text-muted-foreground mb-6">Sign in to your account</p>
+              
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  <div className="space-y-5">
+                    <div className="space-y-2">
                       <FormField
                         control={form.control}
-                        name="remember"
+                        name="email"
                         render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-3 bg-blue-50 dark:bg-blue-950/20">
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold">Email</FormLabel>
                             <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                className="border-blue-500 bg-blue-500"
+                              <Input
+                                placeholder="Enter your email"
+                                {...field}
+                                className="transition-all duration-200"
                               />
                             </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel className="text-sm font-medium cursor-pointer">Remember Me</FormLabel>
-                            </div>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
-                      <Button
-                        type="submit"
-                        disabled={form.formState.isSubmitting}
-                        className="w-full !py-[25px] bg-[#DCEDC0] hover:bg-[#e3fcbc] text-white font-semibold transition-colors"
-                      >
-                        {form.formState.isSubmitting ? (
-                          <Spinner size="small" className="text-white" />
-                        ) : (
-                          'Login'
-                        )}
-                      </Button>
-                      <div className="text-center">
-                        <Link
-                          className="px-8 text-sm text-muted-foreground"
-                          href="/signup"
-                        >  
-                          Register a new account
-                        </Link>
-                      </div>
                     </div>
-                  </form>
-                </Form>
-                {/* </CardContent> */}
-              </div>
-            </section>
-          </div>
-        {/* </div> */}
-        <div className="z-20 justify-center w-full lg:mt-auto sticky bottom-0 flex lg:hidden dark:bg-black bg-white">
+                    <div className="space-y-2">
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold">Password</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  type={showPassword ? 'text' : 'password'}
+                                  placeholder="Enter your password"
+                                  {...field}
+                                  className="pr-11 transition-all duration-200"
+                                />
+                                <div
+                                  className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                                  onClick={togglePasswordVisibility}
+                                >
+                                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="remember"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-lg p-4 bg-muted/50 border border-border">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="text-sm font-medium cursor-pointer">Remember Me</FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="submit"
+                      disabled={form.formState.isSubmitting}
+                      className="w-full !py-6 text-base font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                    >
+                      {form.formState.isSubmitting ? (
+                        <Spinner size="medium" className="text-primary-foreground" />
+                      ) : (
+                        'Sign In'
+                      )}
+                    </Button>
+                    <div className="text-center">
+                      <Link
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+                        href="/signup"
+                      >  
+                        Don't have an account? Register
+                      </Link>
+                    </div>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          </section>
+        </div>
+        
+        <div className="z-20 justify-center w-full lg:mt-auto sticky bottom-0 flex lg:hidden bg-background/80 backdrop-blur-sm border-t border-border">
           <blockquote className="space-y-2">
-            <footer className="text-sm">
-              <div className="container flex flex-col items-center justify-center gap-4 lg:h-24 md:flex-row">
+            <footer className="text-sm py-4">
+              <div className="container flex flex-col items-center justify-center gap-4">
                 <p className="text-balance text-center text-sm leading-loose text-muted-foreground">
                   © {currentYear}, Retell AI
-
                 </p>
               </div>
             </footer>

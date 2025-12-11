@@ -381,7 +381,7 @@ const agentTableComponent = () => {
 
       <div className="text-left">
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Agent</DialogTitle>
             </DialogHeader>

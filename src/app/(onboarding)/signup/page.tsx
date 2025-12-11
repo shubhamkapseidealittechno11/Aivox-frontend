@@ -98,6 +98,7 @@ const SignupPage = () => {
         toast({
           title: "Login successful!",
           description: "Redirecting to dashboard...",
+          variant: "default",
         });
 
         router.push("/dashboard");
@@ -128,7 +129,6 @@ const SignupPage = () => {
           toast({ title: "Account created successfully!" });
         });
       }
-      // If needed, auto-login or redirect here...
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -139,123 +139,115 @@ const SignupPage = () => {
   }
 
   return (
-    <>
-      <div className="mx-auto max-w-sm space-y-4 lg:mt-0 mt-6">
-        <div className="space-y-1 text-center">
-          <div className="text-2xl font-bold text-center">
-            Create an Account
-          </div>
-          <div className="text-muted-foreground text-sm">
-            Enter your details to create your account.
-          </div>
-        </div>
-
-        <div>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-8 mt-3"
-            >
-              <div className="space-y-4">
-                {/* Name */}
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium">
-                          Name
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Email */}
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium">
-                          Email
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your email" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Password with show/hide (matches pattern from login page) */}
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium">
-                          Password
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Enter your password"
-                              {...field}
-                              className="pr-11"
-                            />
-                            <div
-                              className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-500 hover:text-blue-500"
-                              onClick={togglePasswordVisibility}
-                            >
-                              {showPassword ? (
-                                <Eye size={18} />
-                              ) : (
-                                <EyeOff size={18} />
-                              )}
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Submit button */}
-                <Button
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                  className="w-full !py-[25px]"
-                >
-                  {form.formState.isSubmitting ? (
-                    <Spinner size="small" className="text-black" />
-                  ) : (
-                    "Sign Up"
-                  )}
-                </Button>
-
-                {/* Link back to login */}
-                <div className="text-center">
-                  <Link className="px-8 text-sm text-muted-foreground" href="/">
-                    Already have an account? Log in
-                  </Link>
-                </div>
-              </div>
-            </form>
-          </Form>
-        </div>
+    <div className="mx-auto max-w-sm mt-2">
+      <div className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        Create Account
       </div>
-    </>
+      <p className="text-center text-muted-foreground mb-6">Enter your details to get started</p>
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          <div className="space-y-5">
+            {/* Name */}
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">
+                      Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your name" {...field} className="transition-all duration-200" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your email" {...field} className="transition-all duration-200" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Password with show/hide */}
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">
+                      Password
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          {...field}
+                          className="pr-11 transition-all duration-200"
+                        />
+                        <div
+                          className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? (
+                            <Eye size={18} />
+                          ) : (
+                            <EyeOff size={18} />
+                          )}
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Submit button */}
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting}
+              className="w-full !py-6 text-base font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            >
+              {form.formState.isSubmitting ? (
+                <Spinner size="medium" className="text-primary-foreground" />
+              ) : (
+                "Sign Up"
+              )}
+            </Button>
+
+            {/* Link back to login */}
+            <div className="text-center">
+              <Link className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline" href="/">
+                Already have an account? Sign in
+              </Link>
+            </div>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };
 

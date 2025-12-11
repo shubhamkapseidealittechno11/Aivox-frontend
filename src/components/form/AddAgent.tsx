@@ -75,16 +75,12 @@ console.log("Create agent response:", res);
 
 
   return (
-    <div className="flex justify-center items-center">
-      <Card className="p-4 w-full max-w-xl">
-        <CardContent>
-        
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6"
-            >
+    <div className="w-full">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8"
+        >
               {/* Agent Name */}
               <FormField
                 control={form.control}
@@ -116,8 +112,9 @@ console.log("Create agent response:", res);
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        rows={5}
+                        rows={12}
                         placeholder="Enter the system prompt for this agent..."
+                        className="resize-none"
                         {...field}
                       />
                     </FormControl>
@@ -156,8 +153,6 @@ console.log("Create agent response:", res);
               </div>
             </form>
           </Form>
-        </CardContent>
-      </Card>
     </div>
   );
 }
