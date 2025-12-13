@@ -44,7 +44,7 @@ export default function OnBoardLayout({
             <footer className="text-sm py-4">
               <div className="container flex flex-col items-center justify-center gap-4">
                 <p className="text-balance text-center text-sm leading-loose text-muted-foreground">
-                  © {currentYear}, Retell AI
+                  © {currentYear},Aivox
                 </p>
               </div>
             </footer>

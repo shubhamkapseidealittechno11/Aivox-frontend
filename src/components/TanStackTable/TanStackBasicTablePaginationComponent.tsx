@@ -27,9 +27,9 @@ export default function TanStackBasicTablePaginationComponent<TData>({
           ))}
         </select>
         <p>
-          {`Page ${
+          { `Page ${
             table.getState().pagination.pageIndex + 1
-          } of ${table?.getPageCount()}`}
+          } of ${table?.getPageCount()}` }
         </p>
       </div>
     </div>

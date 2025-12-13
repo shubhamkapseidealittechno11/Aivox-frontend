@@ -466,9 +466,11 @@ export default function ChatApp({ agentId }: any) {
                     description: "Chat saved successfully!",
                     variant: "default",
                   });
+                  setConversationId(null);
                   setMessages([]);
                   setInputText("");
                   setIsThinking(false);
+
                 } else {
                   toast({
                     title: "Error",

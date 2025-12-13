@@ -17,21 +17,21 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : `http://localhost:${process.env.PORT || 3000}`
   ),
-  title: "Retail Admin",
-  description: "Retell AI",
+  title: "Aivox",
+  description: "Aivox",
   alternates: {
     canonical: "/"
   },
   openGraph: {
     url: "/",
-    title: "Retail Admin",
-    description: "Retell AI",
+    title: "Aivox",
+    description: "Aivox",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "Retell AI",
-    description: "Retell AI"
+    title: "Aivox",
+    description: "Aivox"
   }
 };
 

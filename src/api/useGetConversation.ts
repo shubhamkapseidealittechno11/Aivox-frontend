@@ -26,9 +26,7 @@ const getAllConversationFn: ({
     role = "",
     from= "",
     noLimit = "",
-    to = "",
-    isDeleted=""
-
+    to = ""
 
   for (const filter of columnFilters) {
     const id = filter.id,

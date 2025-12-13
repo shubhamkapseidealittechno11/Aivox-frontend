@@ -64,7 +64,7 @@ const conversationTableComponent = () => {
   // pagination state of the table
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0, //initial page index
-    pageSize: 20, //default page size
+    pageSize: 10, //default page size
   });
 
   const { allConversationData, isAllDataLoading }: any = useGetConversation({

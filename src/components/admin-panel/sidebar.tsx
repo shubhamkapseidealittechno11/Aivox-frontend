@@ -44,7 +44,7 @@ export function Sidebar() {
               priority
               className=" size-[70px]"
             /> */}
-            retail
+            Aivox
            </div>
             {/* <Image
               src="/logo.svg"

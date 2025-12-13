@@ -17,7 +17,7 @@ const AgentDeatil = ({ params }: any) => {
   const agentId = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
 
   return (
-    <ContentLayout title="Retail">
+    <ContentLayout title="Aivox">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

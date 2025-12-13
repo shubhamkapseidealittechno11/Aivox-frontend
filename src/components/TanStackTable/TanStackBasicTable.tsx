@@ -78,7 +78,7 @@ const table = useReactTable({
   // pagination: enable built-in client-side pagination
   getPaginationRowModel: getPaginationRowModel(),
   // keep this so parent can still track pagination state if you want
-  onPaginationChange: setPagination,
+  onPaginationChange : setPagination,
   // IMPORTANT: turn off manualPagination to allow client-side pagination
   manualPagination: false,
 
