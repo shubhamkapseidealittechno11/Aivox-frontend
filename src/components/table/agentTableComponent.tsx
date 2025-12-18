@@ -27,7 +27,7 @@ import { cn, formatName } from "@/lib/utils";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
 import { titleCase } from "@/lib/utils";
-// import AuthService from "@/api/auth/AuthService";
+import AuthService from "@/api/auth/AuthService";
 import agentsApi from "@/api/agentActionsApi";
 import { useTheme } from "next-themes";
 import { Badge } from "../ui/badge";
@@ -39,7 +39,7 @@ import AddAgentConfig from "../form/AddAgent";
 const agentTableComponent = () => {
   const previewImgUrl = process.env.NEXT_PUBLIC_PREVIEW_IMG_URL;
   const { theme } = useTheme();
-  // const { directLogout } = AuthService();
+  const { directLogout } = AuthService();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { deleteAgent } = agentsApi();
@@ -84,8 +84,8 @@ const agentTableComponent = () => {
           variant: "destructive",
           description: allAgentData?.error,
         });
-      // (allAgentData?.status == 401 || allAgentData?.status == 403) &&
-      //   directLogout();
+      (allAgentData?.status == 401 || allAgentData?.status == 403) &&
+        directLogout();
     }
     setAllagents(allAgentData);
   }, [allAgentData, pathname]);
