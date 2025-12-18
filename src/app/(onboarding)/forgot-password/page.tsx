@@ -50,58 +50,55 @@ const Page = () => {
     }
   }
 
- 
-
   return (
-    <>
-      <div className="mx-auto max-w-sm space-y-4 lg:mt-0 mt-6">
-        <div className="space-y-1 text-center">
-          <div className="text-2xl font-bold text-center">Forgot Your Password</div>
-          <div className="text-muted-foreground text-sm">
-            No worries, we’ll send you reset instructions.
-          </div>
-        </div>
-        <div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-3">
-              <div className="space-y-4">
-                <div className="space-y-2 pb-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your email" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                  className="w-full h-9 px-4 !py-[25px]"
-                  >
-                  {form.formState.isSubmitting ? (
-                    <Spinner size="small" className="text-black" />
-                  ) : (
-                    "Send"
-                  )}
-                </Button>
-                <div className="text-center">
-                  <Link className="px-8 text-sm text-muted-foreground" href="/">
-                    Back to log In
-                  </Link>
-                </div>
-              </div>
-            </form>
-          </Form>
-        </div>
+    <div className="mx-auto max-w-sm mt-2">
+      <div className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        Forgot Password
       </div>
-    </>
+      <p className="text-center text-muted-foreground mb-6">
+        No worries, we'll send you reset instructions
+      </p>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your email" {...field} className="transition-all duration-200" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting}
+              className="w-full !py-6 text-base font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            >
+              {form.formState.isSubmitting ? (
+                <Spinner size="medium" className="text-primary-foreground" />
+              ) : (
+                "Send Reset Link"
+              )}
+            </Button>
+            
+            <div className="text-center">
+              <Link className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline" href="/">
+                Back to Sign In
+              </Link>
+            </div>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };
 

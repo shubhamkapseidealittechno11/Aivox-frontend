@@ -2,10 +2,11 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   // getFilteredRowModel,
-  // getPaginationRowModel,
   useReactTable
 } from "@tanstack/react-table";
+
 import { useEffect } from "react";
 import TanStackBasicTablePaginationComponent from "./TanStackBasicTablePaginationComponent";
 import TanStackBasicTableSortingComponent from "./TanStackBasicTableSortingComponent";
@@ -60,39 +61,33 @@ export default function TanStackBasicTable<TData, TValue>({
   hideFilter,
   cursorPointer
 }: TableProps<TData, TValue>) {
+  
   const table = useReactTable({
     data: paginatedTableData?.results || paginatedTableData?.result || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // sort config
+
+    // sorting
     onSortingChange: setSorting,
-    // enableMultiSort: false,
-    // manualSorting: true,
     sortDescFirst: true,
-    // enableSortingRemoval: true,
+
     // filter config
-    // getFilteredRowModel: getFilteredRowModel(),
     onColumnFiltersChange: setColumnFilters,
     manualFiltering: true,
-    // pagination config
-    // getPaginationRowModel: getPaginationRowModel(),
+
+    // pagination: server-side pagination
     onPaginationChange: setPagination,
-    // rowCount: paginatedTableData?.total_filtered,
-    // pageCount: Math.ceil(
-    //   (paginatedTableData?.count || 0) / (paginatedTableData?.per_page || 1)
-    // ),
-    pageCount: Math.ceil(
-      (paginatedTableData?.counts || paginatedTableData?.count || 0) /
-        (pagination?.pageSize || 1)
-    ),
     manualPagination: true,
+    rowCount: paginatedTableData?.counts || paginatedTableData?.count || 0,
+
     state: {
       sorting,
       pagination,
-      columnFilters
-    }
+      columnFilters,
+    },
   });
+
 
   
 

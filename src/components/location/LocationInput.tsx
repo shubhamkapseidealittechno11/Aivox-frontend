@@ -47,7 +47,6 @@ const LocationInput = (props: any) => {
         },
         (error) => {
           setIsLoading(false);
-          console.log(error);
           confirm("Location access is Blocked. Change your location settings in browser or select location manually.");
         }
       );

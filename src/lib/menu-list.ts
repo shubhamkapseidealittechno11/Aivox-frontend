@@ -29,7 +29,8 @@ import {
   BellDot,ActivityIcon,
   MapPinned,
   MapPin,
-  BotMessageSquare
+  BotMessageSquare,
+  MessageSquare
 } from "lucide-react";
 
 type Submenu = {
@@ -70,13 +71,14 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Managements",
       menus: [
         
-        // {
-        //   href: "/",
-        //   label: "Places",
-        //   active: pathname.includes("/"),
-        //   icon: MapPin,
-        //   submenus: []
-        // },
+        {
+          href: "/conversations-history",
+          label: "Conversations",
+          active: pathname.includes("/conversations-history"),
+          icon:     MessageSquare 
+,
+          submenus: []
+        },
         // {
         //   href: "/",
         //   label: "Activity",

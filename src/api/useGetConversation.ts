@@ -5,7 +5,7 @@ import {  getApiAccessToken } from "./authToken";
 
 
 
-const getAllAgentFn: ({
+const getAllConversationFn: ({
     sorting,
     columnFilters,
     pagination,
@@ -26,9 +26,7 @@ const getAllAgentFn: ({
     role = "",
     from= "",
     noLimit = "",
-    to = "",
-    limit=""
-
+    to = ""
 
   for (const filter of columnFilters) {
     const id = filter.id,
@@ -40,14 +38,14 @@ const getAllAgentFn: ({
         case "noLimit":
           noLimit = value as string
           break;
-          case "search":
+          case "email":
           search = value as string;
             break;
         case "status":
           status = value as string;
           break;
-          case "limit":
-            limit = value as string;
+          case "groupType":
+            role = value as string;
             break;
         case "from":
             from = value as string;
@@ -55,7 +53,7 @@ const getAllAgentFn: ({
         case "to":
             to = value as string;
             break;
-          
+           
       }
   }
 
@@ -74,19 +72,20 @@ const getAllAgentFn: ({
     }
   }
   const offset = (page - 1) * per_page
-  const url = await routes.AGENT_LIST({
+  const url = await routes.GET_CONVERSATIONS(
+      {
     search: search.trim(),
     status: status,
     role : role,
     noLimit : noLimit,
     from:from,
-    // limit:limit,
     to:to,
     sorting_param: sorting_param,
     direction: direction,
     offset: offset,
     limit: per_page,
-  })
+  }
+  )
   
   const response = await (await fetch(
     url, {
@@ -99,18 +98,18 @@ const getAllAgentFn: ({
   return res;
 };
 
-export const useGetAgents = ({
+export const useGetConversation = ({
   sorting,
   columnFilters,
   pagination,
 }: UseUsersInput) => {
 
-  const { data: allAgentData, isLoading: isAllDataLoading } = useQuery<
+  const { data: allConversationData, isLoading: isAllDataLoading } = useQuery<
     UseUsersResponse
   >({
     queryKey: ["users", sorting, columnFilters, pagination],
     queryFn: () =>
-      getAllAgentFn({
+      getAllConversationFn({
         sorting,
         columnFilters,
         pagination,
@@ -118,5 +117,5 @@ export const useGetAgents = ({
       refetchOnWindowFocus: false, // Disable refetching on window focus
       staleTime: 0, // Set stale time to 5 minutes (optional)
   });
-  return { allAgentData, isAllDataLoading };
+  return { allConversationData, isAllDataLoading };
 };
