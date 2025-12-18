@@ -23,7 +23,7 @@ const routes = {
   USER_DETAIL: (id: any) => `http://192.168.1.175:5000/api/agents/${id}`,
   SYNC_AGENT:() =>`${userBaseUrl}conversations`,
   SAVE_CHAT:(id:any) =>`${userBaseUrl}conversations/${id}/messages`,
-  SAVE_N8N_CHAT:(id:any) =>`${userBaseUrl}save-conversation`,
+  SAVE_N8N_CHAT:() =>`${userBaseUrl}save-conversation`,
   GET_CONVERSATIONS: (params:any) => `${userBaseUrl}conversations?${params?.search !== "" ? `search=${params?.search}&` : ""}${params?.noLimit !== "" ? `pagination=${params?.noLimit}&` : ""
     }${params?.status !== "" ? `status=${params?.status}&` : ""}${params?.role !== "" ? `role=${params?.role}&` : ""
     }${params?.from !== "" ? `startDate=${moment(params?.from).format('YYYY-MM-DD')}&` : ""}${params?.to !== "" ? `endDate=${moment(params?.to).format('YYYY-MM-DD')}&` : ""}${params?.sorting_param !== "" ? `orderBy=${params?.sorting_param}&` : ""
@@ -62,6 +62,8 @@ const routes = {
   MOVE_CONTENT:() => `${awsHostBaseApi}file`,
 
   LOGIN:() => `${userBaseUrl}auth/login`,
+  SIGN_UP:() => `${userBaseUrl}auth/signup`,
+
   FORGOT_PASSWORD:() => `${userBaseUrl}forgotPassword`,
   OTP_VERIFY:() => `${userBaseUrl}forgotPassword/verify`,
   RESET_PASSWORD:() => `${userBaseUrl}resetPassword`,

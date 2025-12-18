@@ -8,7 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { set } from "date-fns";
 const WS_URL = `ws://192.168.1.175:5000/stream-transcribe`;
 export default function ChatApp({ agentId }: any) {
-  
   const [messages, setMessages]: any = useState([]);
   const [inputText, setInputText] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -23,9 +22,11 @@ export default function ChatApp({ agentId }: any) {
   const messagesEndRef: any = useRef(null);
   const { user, loading: authLoading } = useAuth();
   const pcmWorkerRef: any = useRef(null);
+  const currentAudioRef: any = useRef(null);
 
   const [sessionId] = useState(`session_${Date.now()}`);
-
+  const end_timestamp = new Date().toISOString();
+  const start_timestamp = new Date().toISOString();
   //----------------------------------------------------
   // AUTO SCROLL
   //----------------------------------------------------
@@ -123,6 +124,50 @@ export default function ChatApp({ agentId }: any) {
   };
 
   //----------------------------------------------------
+  // COMPREHENSIVE CLEANUP FUNCTION
+  //----------------------------------------------------
+  const cleanupAllResources = () => {
+    console.log("🧹 Cleaning up all resources...");
+
+    // Stop and clear current audio playback
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.src = "";
+      currentAudioRef.current = null;
+      console.log("🔇 Current audio stopped");
+    }
+
+    // Clear audio queue
+    audioQueue.current = [];
+    isPlayingAudio.current = false;
+    console.log("🗑️ Audio queue cleared");
+
+    // Stop microphone and audio processing
+    const w: any = pcmWorkerRef.current;
+    if (w) {
+      w.stream?.getTracks().forEach((t: any) => t.stop());
+      w.proc?.disconnect();
+      w.audioCtx?.close();
+      pcmWorkerRef.current = null;
+      console.log("🎤 Microphone and audio processing stopped");
+    }
+
+    // Send stop message to WebSocket if connected
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          type: "stop",
+          session_id: sessionId,
+          agent_id: agentId,
+        })
+      );
+      console.log("📤 Sent 'stop' message to server");
+    }
+
+    console.log("✅ All resources cleaned up");
+  };
+
+  //----------------------------------------------------
   // AUDIO STREAMING QUEUE SYSTEM
   //----------------------------------------------------
   const enqueueAudioChunk = (base64Chunk: any, isFinal: any) => {
@@ -140,6 +185,7 @@ export default function ChatApp({ agentId }: any) {
   const playNextAudioChunk = async () => {
     if (audioQueue.current.length === 0) {
       isPlayingAudio.current = false;
+      currentAudioRef.current = null;
       console.log("🏁 Audio playback complete");
       return;
     }
@@ -161,6 +207,7 @@ export default function ChatApp({ agentId }: any) {
       const url = URL.createObjectURL(blob);
 
       const audio = new Audio(url);
+      currentAudioRef.current = audio; // Track the current audio element
 
       // Wait for audio to load before playing
       audio.addEventListener(
@@ -326,29 +373,21 @@ export default function ChatApp({ agentId }: any) {
   const stopLive = () => {
     console.log("⏹️ Stopping voice mode...");
     setLiveMode(false);
-
-    // Clear any pending audio chunks
-    audioQueue.current = [];
-    isPlayingAudio.current = false;
-    console.log("🗑️ Audio queue cleared");
-
-    ws.current.send(
-      JSON.stringify({
-        type: "stop",
-        session_id: sessionId,
-        agent_id: agentId,
-      })
-    );
-    console.log("📤 Sent 'stop' message to server");
-
-    const w: any = pcmWorkerRef.current;
-    if (w) {
-      w.stream.getTracks().forEach((t: any) => t.stop());
-      w.proc.disconnect();
-      w.audioCtx.close();
-      console.log("✅ Voice recording stopped and cleaned up");
-    }
+    cleanupAllResources();
   };
+
+  //----------------------------------------------------
+  // COMPONENT UNMOUNT CLEANUP (for navigation)
+  //----------------------------------------------------
+  useEffect(() => {
+    return () => {
+      console.log("🚪 Component unmounting, cleaning up resources...");
+      cleanupAllResources();
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
 
   //----------------------------------------------------
   // START CONVERSATION (Open Chat)
@@ -357,28 +396,44 @@ export default function ChatApp({ agentId }: any) {
     try {
       const bodyPayload = {
         agent_id: agentId,
-        session_id: Date.now(),
+        session_id: sessionId,
         user_id: user?._id,
-        start_timestamp: new Date().toISOString(),
+        start_timestamp: start_timestamp,
       };
 
       const res: any = await syncAgent(bodyPayload);
       if (!res.error) {
         setConversationId(res?.conversation?._id ?? res?.conversation);
-        toast({ title: "Success", description: "Chat session started.", variant: "default" });
+        toast({
+          title: "Success",
+          description: "Chat session started.",
+          variant: "default",
+        });
       } else {
-        toast({ title: "Error", description: res.error || "Failed to start chat session", variant: "destructive" });
+        toast({
+          title: "Error",
+          description: res.error || "Failed to start chat session",
+          variant: "destructive",
+        });
       }
     } catch (err: any) {
       console.error("Failed to start conversation:", err);
-      toast({ title: "Error", description: "Could not start conversation.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Could not start conversation.",
+        variant: "destructive",
+      });
     }
   };
 
   //----------------------------------------------------
-  // UI
+  // END SESSION / SAVE CHAT
   //----------------------------------------------------
   const handleSendMessage = () => {
+    // Stop all audio playback and cleanup resources first
+    console.log("🛑 Ending session, stopping all audio and voice...");
+    setLiveMode(false);
+    cleanupAllResources();
     console.log("💾 Saving chat...", conversationId);
     try {
       if (messages.length > 0 && conversationId) {
@@ -386,133 +441,209 @@ export default function ChatApp({ agentId }: any) {
           messages,
           agent_id: agentId,
           session_id: sessionId,
-          end_timestamp: new Date().toISOString(),
+          end_timestamp: end_timestamp,
           user_id: user?._id,
         };
 
-        saveChat(preparedBody, conversationId).then((res) => {
-          if (!res.error) {
-            // Optionally call saveN8Nchat here if desired
-            toast({ title: "Success", description: "Chat saved successfully!", variant: "default" });
-            setMessages([]);
-            setInputText("");
-            setIsThinking(false);
-          } else {
-            toast({ title: "Error", description: `Failed to save chat: ${res.errorMessage}`, variant: "destructive" });
-          }
-        }).catch((err) => {
-          toast({ title: "Error", description: `Failed to save chat: ${err?.message || err}`, variant: "destructive" });
-        });
+        saveChat(preparedBody, conversationId)
+          .then((res) => {
+            if (!res.error) {
+              const preparedBodyN8N = {
+                messages,
+                agent_id: agentId,
+                session_id: sessionId,
+                end_timestamp: end_timestamp,
+                start_timestamp: start_timestamp,
+                user_id: user?._id,
+                conversation_id: conversationId,
+              };
+              saveN8Nchat(preparedBodyN8N).then((resN8N) => {
+                if (!resN8N.error) {
+                  console.log("✅ Chat saved successfully");
+                  // Optionally call saveN8Nchat here if desired
+                  toast({
+                    title: "Success",
+                    description: "Chat saved successfully!",
+                    variant: "default",
+                  });
+                  setConversationId(null);
+                  setMessages([]);
+                  setInputText("");
+                  setIsThinking(false);
+
+                } else {
+                  toast({
+                    title: "Error",
+                    description: `Failed to save chat to n8n: ${resN8N.errorMessage}`,
+                    variant: "destructive",
+                  });
+                }
+              });
+            } else {
+              toast({
+                title: "Error",
+                description: `Failed to save chat: ${res.errorMessage}`,
+                variant: "destructive",
+              });
+            }
+          })
+          .catch((err) => {
+            toast({
+              title: "Error",
+              description: `Failed to save chat: ${err?.message || err}`,
+              variant: "destructive",
+            });
+          });
       }
     } catch (err) {
-      toast({ title: "Error", description: `Something went wrong ${err}`, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: `Something went wrong ${err}`,
+        variant: "destructive",
+      });
       console.error("❌ Error processing audio chunk:", err);
     }
   };
 
   // If conversation not started yet, show centered Open Chat button only
-if (!conversationId) {
-  return (
-    <div className="flex items-center justify-center h-full w-full bg-gray-50">
-      <button
-        onClick={openConversation}
-        className="px-6 py-3 bg-indigo-600 text-white rounded-md"
-      >
-        Open Chat
-      </button>
-    </div>
-  );
-}
+  // If conversation not started yet, show Open Chat button INSIDE message area
+  if (!conversationId) {
+    return (
+      <div className="flex flex-col h-full w-full bg-background border border-border rounded-2xl shadow-lg overflow-hidden transition-all duration-300">
+        {/* HEADER - Modern with glassmorphism */}
+        <div className="glass-strong text-foreground p-4 sm:p-5 flex justify-between items-center border-b border-border">
+          <h1 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse-glow"></div>
+            AI Assistant
+          </h1>
+          <div
+            className={`h-3 w-3 rounded-full transition-all duration-300 ${isConnected ? "bg-success shadow-lg shadow-success/50" : "bg-destructive"}`}
+          ></div>
+        </div>
 
+        {/* MESSAGES AREA With Centered Button */}
+        <div className="flex-1 flex items-center justify-center p-6 bg-muted/30">
+          <button
+            onClick={openConversation}
+            className="px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 text-base sm:text-lg font-medium animate-fade-in"
+          >
+            Start Conversation
+          </button>
+        </div>
+
+        {/* FOOTER (Hidden until chat starts) */}
+        <div className="p-4 sm:p-5 border-t border-border flex items-center gap-3 opacity-40 pointer-events-none bg-card">
+          <input
+            className="flex-1 border-2 border-input p-3 sm:p-3.5 rounded-full text-sm bg-background"
+            placeholder="Type a message…"
+            disabled
+          />
+          <button className="p-3 sm:p-3.5 rounded-full bg-muted text-muted-foreground">
+            <Send size={20} />
+          </button>
+          <button className="p-3 sm:p-3.5 rounded-full bg-muted text-muted-foreground hidden sm:flex">
+            End
+          </button>
+          <button className="p-3 sm:p-3.5 rounded-full bg-muted text-muted-foreground">
+            <Mic size={20} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-<div className="flex flex-col h-[96%] w-full bg-white border border-gray-300 rounded-lg shadow">
-      {/* HEADER */}
-      <div className="bg-indigo-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-lg font-semibold">AI  Assistant</h1>
+    <div className="flex flex-col h-full w-full bg-background border border-border rounded-2xl shadow-lg overflow-hidden transition-all duration-300">
+      {/* HEADER - Modern with glassmorphism */}
+      <div className="glass-strong text-foreground p-4 sm:p-5 flex justify-between items-center border-b border-border">
+        <h1 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse-glow"></div>
+          AI Assistant
+        </h1>
         <div
-          className={`h-3 w-3 rounded-  full ${
-            isConnected ? "bg-green-400" : "bg-red-500"
+          className={`h-3 w-3 rounded-full transition-all duration-300 ${
+            isConnected ? "bg-success shadow-lg shadow-success/50" : "bg-destructive"
           }`}
         ></div>
       </div>
 
-      {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+      {/* MESSAGES - Modern chat bubbles */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-muted/20 scrollbar-thin">
         {messages?.map((msg: any, i: any) => (
           <div
             key={i}
-            className={`flex ${
-              msg?.role === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-slide-up`}
           >
             <div
-              className={`p-3 max-w-[75%] rounded-xl shadow ${
-                msg?.role === "user"
-                  ? "bg-indigo-600 text-white rounded-br-none"
-                  : "bg-white border rounded-bl-none"
+              className={`px-4 py-3 max-w-[85%] sm:max-w-[75%] rounded-2xl shadow-md transition-all duration-200 ${
+                msg.role === "user"
+                  ? "bg-primary text-primary-foreground rounded-br-sm hover:shadow-lg"
+                  : "bg-card border border-border text-card-foreground rounded-bl-sm hover:shadow-lg"
               }`}
             >
-              {msg.content}
+              <p className="text-sm sm:text-base break-words leading-relaxed">{msg.content}</p>
             </div>
           </div>
         ))}
 
         {isThinking && (
-          <div className="flex items-center gap-2 text-gray-500 text-sm">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-200"></div>
-            Bot is responding…
+          <div className="flex justify-start animate-slide-up">
+            <div className="bg-card border border-border rounded-bl-sm px-4 py-3 rounded-2xl shadow-md flex items-center gap-2">
+              <div className="loader"></div>
+              <span className="text-sm text-muted-foreground ml-2 hidden sm:inline">Thinking...</span>
+            </div>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-
-      <div className="p-4 border-t flex items-center gap-2">
+      {/* INPUT AREA - Modern with enhanced styling */}
+      <div className="p-4 sm:p-5 border-t border-border flex items-center gap-3 bg-card/50">
         <input
-          className="flex-1 border p-3 rounded-xl"
+          disabled={isThinking}
+          className="flex-1 border-2 border-input bg-background px-4 py-3 rounded-full text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-0 focus:shadow-none hover:border-ring/50 disabled:opacity-50"
           placeholder="Type a message…"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendText()}
+          onKeyDown={(e) => e.key === "Enter" && !isThinking && sendText()}
         />
 
         <button
+          disabled={isThinking}
           onClick={sendText}
-          className="p-3 rounded-xl bg-indigo-600 text-white"
+          className="p-3 sm:p-3.5 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:transform-none"
         >
-          <Send size={18} />
+          <Send size={20} />
         </button>
 
         {messages.length > 0 && (
           <button
             onClick={handleSendMessage}
-            className="p-3 rounded-xl bg-indigo-600 text-white"
+            className="px-4 py-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg hidden sm:flex items-center gap-2 transform hover:scale-105 active:scale-95 transition-all duration-200"
           >
-            {/* <ArrowDownToLine size={18} /> */}
-            End Session
+            <span className="text-sm font-medium">End</span>
           </button>
         )}
 
         {!liveMode ? (
           <button
             onClick={startLive}
-            className="p-3 rounded-xl bg-green-600 text-white shadow animate-pulse"
+            className="p-3 sm:p-3.5 rounded-full bg-success hover:bg-success/90 text-success-foreground shadow-md hover:shadow-lg animate-pulse-glow transform hover:scale-105 active:scale-95 transition-all duration-200"
+            disabled={isThinking}
           >
-            <Mic size={18} />
+            <Mic size={20} />
           </button>
         ) : (
           <button
+            disabled={isThinking}
             onClick={stopLive}
-            className="p-3 rounded-xl bg-red-600 text-white shadow"
+            className="p-3 sm:p-3.5 rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200"
           >
-            <MicOff size={18} />
+            <MicOff size={20} />
           </button>
         )}
       </div>
     </div>
   );
-}  
+}

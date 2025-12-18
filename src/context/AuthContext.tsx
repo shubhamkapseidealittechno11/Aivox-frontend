@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('No user data returned from login');
       }
     } catch (error: any) {
-      console.error('Login failed:', error);
+      console.log('Login failed:in aurth --', error);
       toast({
         variant: 'destructive',
         title: 'Login failed',
@@ -84,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoadingState(false);
     }
   };
+
 
   const logout = async () => {
     try {

@@ -1,45 +1,37 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { VariantProps, cva } from 'class-variance-authority';
-import { Loader2 } from 'lucide-react';
 
-const spinnerVariants = cva('flex-col items-center justify-center dark:invert', {
-  variants: {
-    show: {
-      true: 'flex',
-      false: 'hidden',
+const spinnerVariants = cva(
+  "inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]",
+  {
+    variants: {
+      size: {
+        small: "h-4 w-4 border-2",
+        medium: "h-6 w-6 border-2",
+        large: "h-8 w-8 border-[3px]",
+        xlarge: "h-12 w-12 border-[3px]",
+      },
     },
-  },
-  defaultVariants: {
-    show: true,
-  },
-});
-
-const loaderVariants = cva('animate-spin text-white', {
-  variants: {
-    size: {
-      small: 'size-6',
-      medium: 'size-8',
-      large: 'size-12',
+    defaultVariants: {
+      size: "medium",
     },
-  },
-  defaultVariants: {
-    size: 'medium',
-  },
-});
+  }
+);
 
-interface SpinnerContentProps
-  extends VariantProps<typeof spinnerVariants>,
-    VariantProps<typeof loaderVariants> {
-  className?: string;
-  children?: React.ReactNode;
-}
+export interface SpinnerProps
+  extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof spinnerVariants> {}
 
-export function Spinner({ size, show, children, className }: SpinnerContentProps) {
+export const Spinner = ({ size, className, ...props }: SpinnerProps) => {
   return (
-    <span className={spinnerVariants({ show })}>
-      <Loader2 className={cn(loaderVariants({ size }), className)} />
-      {children}
+    <span
+      className={cn(spinnerVariants({ size }), className)}
+      {...props}
+      role="status"
+      aria-label="Loading"
+    >
+      <span className="sr-only">Loading...</span>
     </span>
   );
-}
+};

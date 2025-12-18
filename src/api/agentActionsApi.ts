@@ -174,30 +174,32 @@ export default function agentsApi() {
     }
   };
 
-  const saveN8Nchat = async (data: any, id: any) => {
-    try {
-      const url = routes.SAVE_N8N_CHAT(id);
-      const accessFileToken = await getApiAccessToken();
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + accessFileToken,
-        },
-        body: JSON.stringify(data),
-      };
-      const response = await fetch(url, options);
-      const responseData = await response.json();
-      if (!response.ok) {
-        if (response?.status === 401 || response?.status === 403) {
-          errorHandle(response?.status);
-        }
-      }
-      return responseData;
-    } catch (error: any) {
-      return { error: true, errorMessage: error?.message };
+ const saveN8Nchat = async (data: any) => {
+  try {
+    const url = routes.SAVE_N8N_CHAT();
+
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    const response = await fetch(url, options);
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      return { error: true, status: response.status, message: responseData };
     }
-  };
+
+    return responseData;
+  } catch (error: any) {
+    return { error: true, errorMessage: error?.message };
+  }
+};
+;
+
   const editAgent = async (id:any, data: any) => {
     try {
       const url = await routes.EDIT_PROMPT(id);

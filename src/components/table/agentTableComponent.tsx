@@ -61,7 +61,7 @@ const agentTableComponent = () => {
   // pagination state of the table
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0, //initial page index
-    pageSize: 20, //default page size
+    pageSize: 10, //default page size
   });
 
   const { allAgentData, isAllDataLoading }: any = useGetAgents({
@@ -307,7 +307,6 @@ const agentTableComponent = () => {
       accessorKey: "is_active",
       cell: (info) => {
         const status = info.getValue<boolean>();
-        console.log("status", status);
 
         return (
           <div
@@ -382,19 +381,19 @@ const agentTableComponent = () => {
 
       <div className="text-left">
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Agent</DialogTitle>
             </DialogHeader>
             <AddAgentConfig
               setOpen={setOpen}
               setAllagents={setAllagents}
-              allAgent
-              s={allAgents}
+              allAgents={allAgents}
             ></AddAgentConfig>
           </DialogContent>
         </Dialog>
       </div>
+
       {/* Table Component */}
       <TanStackBasicTable
         isTableDataLoading={isAllDataLoading}
@@ -409,6 +408,7 @@ const agentTableComponent = () => {
         details={details}
         cursorPointer={"cursor-pointer"}
       />
+      
     </div>
   );
 };

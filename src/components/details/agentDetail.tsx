@@ -76,7 +76,6 @@ export default function AgentDetail(props: any) {
   // SAVE EDITED DATA
   // -------------------------
   const onSubmit = async (values: z.infer<typeof agentSchema>) => {
-    console.log("Submitted values:", values);
     try {
       const body = {
         // name: values.name,
@@ -151,7 +150,7 @@ export default function AgentDetail(props: any) {
 
         <CardContent>
           <Form {...form}>
-            <form className="space-y-2" onSubmit={form.handleSubmit(onSubmit)}>
+            <form className="" onSubmit={form.handleSubmit(onSubmit)}>
               {/* Agent Name */}
               {/* <FormField
                 control={form.control}
@@ -180,11 +179,11 @@ export default function AgentDetail(props: any) {
                     <FormLabel>System Prompt</FormLabel>
                     <FormControl>
                       <Textarea
-                        rows={12}
+                        rows={8}
                         {...field}
                         disabled={!editMode}
-                        className={`h-[540px] ${
-                          !editMode ? "bg-gray-100 cursor-not-allowed text-lg" : "text-lg"
+                        className={`min-h-[200px] sm:min-h-[300px] lg:min-h-[540px] ${
+                          !editMode ? "bg-gray-100 cursor-not-allowed text-sm sm:text-base" : "text-sm sm:text-base"
                         }`}
                       />
                     </FormControl>
@@ -194,29 +193,33 @@ export default function AgentDetail(props: any) {
               />
 
               {/* BUTTONS */}
-              <div className="flex justify-end gap-3 pt-1">
+              <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-1">
 
                 {!editMode && (
-                  <Button type="button" onClick={() => setEditMode(true)}>
-                    Edit
+                  <Button type="button" className="h-12 w-30" onClick={() => setEditMode(true)}>
+                    Update
                   </Button>
                 )}
 
                 {editMode && (
-                  <>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setEditMode(false);
-                        form.reset(userInfo); // restore original values
-                      }}
-                    >
-                      Cancel
-                    </Button>
+               <div className="flex justify-center items-center gap-4">
+  <Button
+    type="button"
+    variant="outline"
+    className="w-32 h-13"
+    onClick={() => {
+      setEditMode(false);
+      form.reset(userInfo);
+    }}
+  >
+    Cancel
+  </Button>
 
-                    <Button type="submit">Save</Button>
-                  </>
+  <Button type="submit" className="w-32">
+    Save
+  </Button>
+</div>
+
                 )}
               </div>
             </form>

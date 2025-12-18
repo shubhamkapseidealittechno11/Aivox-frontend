@@ -11,7 +11,7 @@ export default function conversationApi() {
 
   const getConversations = async (agentId: string) => {
     try {
-      const url = routes.GET_CONVERSATIONS();
+      const url = routes.GET_CONVERSATIONS(agentId);
       const accessToken = await getApiAccessToken();
       const options = {
         method: "GET",

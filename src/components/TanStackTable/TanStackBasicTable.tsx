@@ -61,33 +61,32 @@ export default function TanStackBasicTable<TData, TValue>({
   hideFilter,
   cursorPointer
 }: TableProps<TData, TValue>) {
-const table = useReactTable({
-  data: paginatedTableData?.results || paginatedTableData?.result || [],
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
+  
+  const table = useReactTable({
+    data: paginatedTableData?.results || paginatedTableData?.result || [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
 
-  // sorting
-  onSortingChange: setSorting,
-  sortDescFirst: true,
+    // sorting
+    onSortingChange: setSorting,
+    sortDescFirst: true,
 
-  // filter config
-  onColumnFiltersChange: setColumnFilters,
-  manualFiltering: true,
+    // filter config
+    onColumnFiltersChange: setColumnFilters,
+    manualFiltering: true,
 
-  // pagination: enable built-in client-side pagination
-  getPaginationRowModel: getPaginationRowModel(),
-  // keep this so parent can still track pagination state if you want
-  onPaginationChange: setPagination,
-  // IMPORTANT: turn off manualPagination to allow client-side pagination
-  manualPagination: false,
+    // pagination: server-side pagination
+    onPaginationChange: setPagination,
+    manualPagination: true,
+    rowCount: paginatedTableData?.counts || paginatedTableData?.count || 0,
 
-  state: {
-    sorting,
-    pagination,
-    columnFilters
-  }
-});
+    state: {
+      sorting,
+      pagination,
+      columnFilters,
+    },
+  });
 
 
   

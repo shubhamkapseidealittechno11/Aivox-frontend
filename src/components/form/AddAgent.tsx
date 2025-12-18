@@ -26,7 +26,6 @@ const agentSchema = z.object({
 });
 
 export default function AddAgentConfig({setOpen , setAllagents , allAgents}:any) {
-  console.log("allAgents in add agent config:", allAgents);
   const form = useForm<z.infer<typeof agentSchema>>({
     resolver: zodResolver(agentSchema),
     defaultValues: {
@@ -35,14 +34,13 @@ export default function AddAgentConfig({setOpen , setAllagents , allAgents}:any)
       isActive: true,
     },
   });
-
+console.log("Form initialized", allAgents);
   const {createAgent} = agentsApi()
    
   const resetForm = () => {
     form.reset();
   }
 async function onSubmit(values: z.infer<typeof agentSchema>) {
-//   setCircleLoader(true);
 
   const body = {
     name: values.agentName,
@@ -52,44 +50,37 @@ async function onSubmit(values: z.infer<typeof agentSchema>) {
 
   try {
     const res = await createAgent(body);
-
+console.log("Create agent response:", res);
     if (!res.error) {
       setAllagents({...allAgents , results:[res.agent ,...( allAgents.results ||[] )]});
-      console.log("response after creating agent:", allAgents);
       toast({
         title: "Agent created successfully!",
       });
-setOpen(false);
+      setOpen(false);
       form.reset(); // reset fields after success
     } else {
       toast({
         variant: "destructive",
-        title: res?.errorMessage ?? "Something went wrong.",
+        title: res?.error ?? "Something went wrong.",
       });
     }
-  } catch (error) {
+  } catch (error:any) {
     toast({
       variant: "destructive",
       title: "Server error",
-      description: "Unable to create agent.",
+      description: error.message || "Unable to create agent.",
     });
-  } finally {
-    // setCircleLoader(false);
-  }
+  } 
 }
 
 
   return (
-    <div className="flex justify-center items-center">
-      <Card className="p-4 w-full max-w-xl">
-        <CardContent>
-        
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6"
-            >
+    <div className="w-full">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8"
+        >
               {/* Agent Name */}
               <FormField
                 control={form.control}
@@ -121,8 +112,9 @@ setOpen(false);
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        rows={5}
+                        rows={12}
                         placeholder="Enter the system prompt for this agent..."
+                        className="resize-none"
                         {...field}
                       />
                     </FormControl>
@@ -161,8 +153,6 @@ setOpen(false);
               </div>
             </form>
           </Form>
-        </CardContent>
-      </Card>
     </div>
   );
 }
