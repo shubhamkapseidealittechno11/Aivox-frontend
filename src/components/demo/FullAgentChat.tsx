@@ -558,7 +558,7 @@ export default function ChatApp({ agentId }: any) {
       <div className="glass-strong text-foreground p-4 sm:p-5 flex justify-between items-center border-b border-border">
         <h1 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-primary animate-pulse-glow"></div>
-          AI Assistant
+          AI Assistantdd
         </h1>
         <div
           className={`h-3 w-3 rounded-full transition-all duration-300 ${
