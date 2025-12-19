@@ -28,10 +28,10 @@ export default function OnBoardLayout({
   
   return (
     <div className="container relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="justify-end flex items-center gap-3 fixed top-4 right-4 z-50">
+        <ModeToggle />
+      </div>
       <div className="lg:p-8 w-full animate-fade-in">
-        <div className="justify-end flex items-center gap-3 absolute top-4 right-4">
-          <ModeToggle />
-        </div>
 
         {/* Modern Card Container matching login page */}
         <section className="lg:mt-6 mt-4 max-w-[480px] flex-col items-center gap-2 lg:p-8 p-6 mx-auto border-2 border-border rounded-2xl bg-card/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300">

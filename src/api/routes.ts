@@ -17,10 +17,10 @@ const routes = {
     }${params?.from !== "" ? `startDate=${moment(params?.from).format('YYYY-MM-DD')}&` : ""}${params?.to !== "" ? `endDate=${moment(params?.to).format('YYYY-MM-DD')}&` : ""}${params?.sorting_param !== "" ? `orderBy=${params?.sorting_param}&` : ""
     }${params?.direction !== "" ? `orderType=${params?.direction}&` : ""}offset=${params?.offset}&limit=${params?.limit}`,
 
-  CREATE_AGENT:() =>`http://192.168.1.175:5000/api/agents`,
+  CREATE_AGENT:() =>`${userBaseUrl}agents`,
   // AGENT_LIST:() =>`http://192.168.1.175:5000/api/agents?active_only=false`,
-  DELETE_AGENT:(id:any) =>`http://192.168.1.175:5000/api/agents/${id}`,
-  USER_DETAIL: (id: any) => `http://192.168.1.175:5000/api/agents/${id}`,
+  DELETE_AGENT:(id:any) =>`${userBaseUrl}agents/${id}`,
+  USER_DETAIL: (id: any) => `${userBaseUrl}agents/${id}`,
   SYNC_AGENT:() =>`${userBaseUrl}conversations`,
   SAVE_CHAT:(id:any) =>`${userBaseUrl}conversations/${id}/messages`,
   SAVE_N8N_CHAT:() =>`${userBaseUrl}save-conversation`,
